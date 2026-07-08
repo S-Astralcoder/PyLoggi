@@ -39,6 +39,8 @@ htmlcov/
 
 # Logs and local runtime output
 *.log
+*.bak
+*.bak-*
 logs/
 log/
 
