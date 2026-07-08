@@ -1,0 +1,64 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Python build artifacts
+build/
+dist/
+downloads/
+eggs/
+.eggs/
+*.egg-info/
+*.egg
+pip-wheel-metadata/
+wheelhouse/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+.env/
+
+# Test, coverage, and type-checker caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.pyre/
+.pytype/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.tox/
+.nox/
+
+# uv local cache/config
+.uv-cache/
+
+# Logs and local runtime output
+*.log
+logs/
+log/
+
+# Local environment files and secrets
+.env
+.env.*
+!.env.example
+*.local
+
+# IDE/editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Jupyter notebooks
+.ipynb_checkpoints/

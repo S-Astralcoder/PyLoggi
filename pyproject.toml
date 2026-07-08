@@ -1,7 +1,7 @@
 [project]
 name = "pyloggi"
 version = "0.1.0"
-description = "Add your description here"
+description = "A Simple Python logging package with pre-build logging constructors ready to use"
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.14"
