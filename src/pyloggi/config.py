@@ -26,15 +26,22 @@ ColorName = Literal[
     "light cyan",
 ]
 
+
 class Config(BaseModel):
     construction_mode: Literal["dev", "test", "default"] = "default"
 
     console_logging: bool = True
     file_logging: bool = False
 
-    logging_level: Literal["NOTSET" ,"DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
+    log_format: str = "%(asctime)s : %(levelname)s - %(name)s > %(message)s"
+    date_format : str = ""
 
-    log_file_path : str | Path = Path.cwd()
+    logging_level: Literal[
+        "NOTSET", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"
+    ] = "INFO"
+
+    log_file_path: str | Path = Path.cwd()
+
 
 class ColorConfig(BaseModel):
     enabled_console_color: bool = False
@@ -75,4 +82,3 @@ class ColorConfig(BaseModel):
         for level in ("debug", "info", "warning", "error", "critical"):
             color = getattr(self, level)
             object.__setattr__(self, level, color_map.get(color, default))
-   

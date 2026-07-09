@@ -11,4 +11,3 @@ def test_duplicate_logger():
 
     with pytest.raises(DuplicateLogger):
         Log(logger_name=logger_name)
-
