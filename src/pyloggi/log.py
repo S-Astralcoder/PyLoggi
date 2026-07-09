@@ -1,14 +1,15 @@
 import logging
 
-from .config import Config
+from .config import Config, ColorConfig
 from .exceptions import DuplicateLogger
 
 
 class Log:
     active_loggers: list[str] = []
-    def __init__(self, logger_name: str, config: Config = Config()) -> None:
+    def __init__(self, logger_name: str, config: Config = Config(), color_config : ColorConfig = ColorConfig()) -> None:
         self._logger_name = self._validate_logger(logger_name=logger_name)
         self._config = config
+        self.color_config = color_config
 
         self.logger : logging.Logger = logging.getLogger(name=self._logger_name)
         

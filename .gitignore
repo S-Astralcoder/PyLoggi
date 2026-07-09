@@ -43,6 +43,7 @@ htmlcov/
 *.bak-*
 logs/
 log/
+freespace/
 
 # Local environment files and secrets
 .env

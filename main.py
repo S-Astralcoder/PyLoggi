@@ -1,6 +1,6 @@
-def main():
-    print("Hello from pyloggi!")
+from pyloggi import Log
 
 
-if __name__ == "__main__":
-    main()
+logger = Log("main")
+
+logger.logger.info("test")
