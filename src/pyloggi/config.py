@@ -1,3 +1,5 @@
+"""Configuration models and validation rules for pyloggi loggers."""
+
 from pydantic import BaseModel
 from typing import Any, Literal
 from pathlib import Path
@@ -46,6 +48,13 @@ valid_formats = [
 
 
 class Config(BaseModel):
+    """Runtime configuration for console and file logging.
+
+    The model validates file output settings, logging format placeholders,
+    date-format tokens, logging level, and construction mode before a logger is
+    created.
+    """
+
     construction_mode: Literal["dev", "test", "default"] = "default"
 
     disable_auto_level_construction: bool = False
@@ -63,6 +72,8 @@ class Config(BaseModel):
     log_file_path: str | Path = Path.cwd() / "log.txt"
 
     def model_post_init(self, context: Any, /) -> None:
+        """Validate path, log-format, and date-format settings after parsing."""
+
         log_file_path = Path(self.log_file_path)
         folder_path = log_file_path if log_file_path.is_dir() else log_file_path.parent
         if log_file_path.suffix not in (".txt", ".rtf"):
@@ -73,14 +84,20 @@ class Config(BaseModel):
             raise FileNotFoundError("The Give File Path doesn't Exist")
 
         format_tags = regex.findall(r"(?<=%[\(%])\w+", self.log_format)
-        if not all([format in valid_formats for format in format_tags]) or not format_tags or regex.findall(r"%(?![%(])[^s]*?(?:s(?!$)|[^s])?", self.log_format):
+        # Accept only known logging fields and reject malformed percent patterns.
+        if (
+            not all([format in valid_formats for format in format_tags])
+            or not format_tags
+            or regex.findall(r"%(?![%(])[^s]*?(?:s(?!$)|[^s])?", self.log_format)
+        ):
             raise InvalidFormat("The Give Log Format is Invalid")
         for tags in format_tags:
-            validation_pattern = fr"%[\(%]{tags}\)s"
+            validation_pattern = rf"%[\(%]{tags}\)s"
             if not regex.search(validation_pattern, self.log_format):
                 raise InvalidFormat(f"The Give Log Format for {tags} tag is Invalid")
 
         date_format_tags = regex.findall("%(.)", self.date_format)
+        # Keep date formatting limited to strftime tokens supported by Python.
         if not all(
             [
                 format
@@ -92,6 +109,8 @@ class Config(BaseModel):
 
 
 class ColorConfig(BaseModel):
+    """Color choices for console output by log level."""
+
     enabled_console_color: bool = False
 
     debug: ColorName = "cyan"
@@ -101,6 +120,7 @@ class ColorConfig(BaseModel):
     critical: ColorName = "dark red"
 
     def model_post_init(self, context: Any, /) -> None:
+        """Convert configured color names into ANSI escape sequences."""
 
         color_map = {
             "black": "\x1b[30;20m",

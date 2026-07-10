@@ -1,3 +1,5 @@
+"""Small manual demo for creating and exercising a pyloggi logger."""
+
 if __name__ == "__main__":
     from pyloggi import Log
     from pyloggi.config import ColorConfig, Config
@@ -5,7 +7,10 @@ if __name__ == "__main__":
     logger = Log(
         "main",
         color_config=ColorConfig(enabled_console_color=False, info="light blue"),
-        config=Config(file_logging=True, construction_mode="default", log_format="%(message)s %(levelno)s %q"),
+        config=Config(
+            file_logging=True,
+            construction_mode="default",
+        ),
     )
 
     logger.logger.debug("debug")

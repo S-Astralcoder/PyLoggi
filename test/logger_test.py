@@ -1,9 +1,8 @@
 import pytest
 
 from pyloggi import Log
-from pyloggi import DuplicateLogger
 from pyloggi.config import ColorConfig, Config
-from pyloggi.exceptions import InvalidConfigure, InvalidFormat
+from pyloggi.exceptions import InvalidConfigure, InvalidFormat, DuplicateLogger
 
 
 @pytest.fixture

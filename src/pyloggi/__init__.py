@@ -1,4 +1,5 @@
-from .log import Log
-from .exceptions import DuplicateLogger
+"""Public package interface for pyloggi."""
 
-__all__ = ["Log", "DuplicateLogger"]
+from .log import Log
+
+__all__ = ["Log"]

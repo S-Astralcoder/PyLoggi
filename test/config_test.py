@@ -57,8 +57,22 @@ def test_invalid_color_toggle(value: bool):
         ColorConfig(enabled_console_color=value)
 
 
-@pytest.mark.parametrize(("formats"), [])
-def test_invalid_format(formats : str):
+@pytest.mark.parametrize(
+    ("formats"),
+    [
+        "%(test)s",
+        "%(bad)d",
+        "%(message)s %(bad)d",
+        "%(message",
+        "%(message)",
+        "%(message)q",
+        "%(message)s %",
+        "%(message)s %q",
+        "%(message)s %(bad)",
+        "plain text with no fields",
+    ],
+)
+def test_invalid_format(formats: str):
     with pytest.raises(InvalidFormat):
         Config(log_format=formats, construction_mode="test")
 

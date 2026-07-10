@@ -1,12 +1,26 @@
+"""High-level logger construction for pyloggi."""
+
 import logging
 from pathlib import Path
 
 from .config import Config, ColorConfig
-from .exceptions import DuplicateLogger, EmptyLoggerName, InvalidConfigure, InvalidConstructionMode, LimitationError
+from .exceptions import (
+    DuplicateLogger,
+    EmptyLoggerName,
+    InvalidConfigure,
+    InvalidConstructionMode,
+    LimitationError,
+)
 from .handlers import ConsoleHandler, FileHandler
 
 
 class Log:
+    """Build a named logger from pyloggi configuration objects.
+
+    The class owns validation, duplicate-name tracking, base logger setup, and
+    handler construction for the supported construction modes.
+    """
+
     active_loggers: list[str] = []
 
     def __init__(
@@ -14,8 +28,10 @@ class Log:
         logger_name: str,
         config: Config,
         color_config: ColorConfig,
-        allow_duplicates : bool = False,
+        allow_duplicates: bool = False,
     ) -> None:
+        """Validate settings and create a configured ``logging.Logger``."""
+
         self.allow_duplicates = allow_duplicates
         self.validate_parameters(config=config, color_config=color_config)
         self._logger_name = self._validate_logger(logger_name=logger_name)
@@ -28,22 +44,30 @@ class Log:
 
     @classmethod
     def _add_log_to_global_list(cls, logger_name: str) -> None:
+        """Register a logger name so duplicates can be detected later."""
+
         if logger_name not in cls.active_loggers:
             cls.active_loggers.append(logger_name)
 
     @classmethod
     def _is_logger_exist(cls, logger_name: str) -> bool:
+        """Return whether a logger name has already been registered."""
+
         if logger_name in cls.active_loggers:
             return True
         return False
 
     def validate_parameters(self, config: object, color_config: object):
+        """Ensure logger setup receives the expected configuration objects."""
+
         if not isinstance(config, Config):
             raise InvalidConfigure("Invalid Config passed as a parameter")
         if not isinstance(color_config, ColorConfig):
             raise InvalidConfigure("Invalid ColorConfig passed as a parameter")
 
     def _validate_logger(self, logger_name: str) -> str:
+        """Validate and register a logger name."""
+
         if self._is_logger_exist(logger_name=logger_name) and not self.allow_duplicates:
             raise DuplicateLogger(logger_name=logger_name)
         elif not isinstance(logger_name, str):
@@ -57,6 +81,8 @@ class Log:
         return logger_name
 
     def _initial_setup(self) -> None:
+        """Reset existing handlers and apply base logger settings."""
+
         while self.logger.handlers:
             handler = self.logger.handlers[0]
             handler.close()
@@ -65,6 +91,8 @@ class Log:
         self.logger.setLevel(self._config.logging_level)
 
     def setup_handlers(self):
+        """Attach handlers for the selected construction mode."""
+
         if self._config.construction_mode == "default":
             self.default_handler_setup()
         elif self._config.construction_mode == "dev":
@@ -75,6 +103,8 @@ class Log:
             raise InvalidConstructionMode("Invalid Construction Mode")
 
     def default_handler_setup(self):
+        """Attach handlers using the configuration exactly as provided."""
+
         if self._config.console_logging:
             self.logger.addHandler(
                 ConsoleHandler(self._config, self._color_config).get_console_handler()
@@ -85,6 +115,8 @@ class Log:
             )
 
     def dev_handler_setup(self):
+        """Attach development handlers, defaulting to DEBUG level."""
+
         if not self._config.disable_auto_level_construction:
             self._config.logging_level = "DEBUG"
             self.logger.setLevel(logging.DEBUG)
@@ -102,6 +134,8 @@ class Log:
             )
 
     def test_handler_setup(self):
+        """Attach test handlers, defaulting to WARNING file-only logging."""
+
         if not self._config.disable_auto_level_construction:
             self._config.logging_level = "WARNING"
             self.logger.setLevel(logging.WARNING)
@@ -124,3 +158,9 @@ class Log:
                     config=self._config, color_config=self._color_config
                 ).get_console_handler()
             )
+
+    @classmethod
+    def get_active_loggers(cls):
+        """Return the names registered through ``Log`` instances."""
+
+        return cls.active_loggers
