@@ -34,7 +34,7 @@ class Log:
             return True
         return False
 
-    def validate_parameters(self, config : object, color_config : object):
+    def validate_parameters(self, config: object, color_config: object):
         if not isinstance(config, Config):
             raise InvalidConfigure("Invalid Config passed as a parameter")
         if not isinstance(color_config, ColorConfig):

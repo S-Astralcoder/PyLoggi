@@ -2,7 +2,8 @@ from pydantic import BaseModel
 from typing import Any, Literal
 from pathlib import Path
 
-from .exceptions import InvalidFileType
+from .exceptions import InvalidFileType, InvalidFormat
+import regex
 
 ColorName = Literal[
     "black",
@@ -28,6 +29,21 @@ ColorName = Literal[
     "light cyan",
 ]
 
+valid_formats = [
+    "name",
+    "levelno",
+    "levelname",
+    "pathname",
+    "filename",
+    "module",
+    "funcName",
+    "asctime",
+    "threadName",
+    "taskName",
+    "processName",
+    "message",
+]
+
 
 class Config(BaseModel):
     construction_mode: Literal["dev", "test", "default"] = "default"
@@ -46,14 +62,18 @@ class Config(BaseModel):
 
     def model_post_init(self, context: Any, /) -> None:
         log_file_path = Path(self.log_file_path)
-        folder_path = log_file_path if log_file_path.is_dir() else log_file_path.parent        
+        folder_path = log_file_path if log_file_path.is_dir() else log_file_path.parent
         if log_file_path.suffix not in (".txt", ".rtf"):
-            raise InvalidFileType(f"The Give File Name [{log_file_path.suffix}] Is Invalid")
+            raise InvalidFileType(
+                f"The Give File Name [{log_file_path.suffix}] Is Invalid"
+            )
         if not folder_path.exists():
             raise FileNotFoundError("The Give File Path doesn't Exist")
 
-        
-        
+        format_tags = regex.findall(r"%\((.*?)\)s", self.log_format)
+        if not all([format in valid_formats for format in format_tags]):
+            raise InvalidFormat("The Give Format is Invalid")
+
 
 class ColorConfig(BaseModel):
     enabled_console_color: bool = False

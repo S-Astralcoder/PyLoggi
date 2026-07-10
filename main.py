@@ -4,10 +4,9 @@ if __name__ == "__main__":
 
     logger = Log(
         "main",
-        color_config=ColorConfig(enabled_console_color=True, info="light blue"),
-        config=Config(file_logging=True, construction_mode="test"),
+        color_config=ColorConfig(enabled_console_color=False, info="light blue"),
+        config=Config(file_logging=True, construction_mode="default"),
     )
-
 
     logger.logger.debug("debug")
     logger.logger.info("info")
