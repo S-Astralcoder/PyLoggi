@@ -59,7 +59,7 @@ def test_invalid_color_toggle(value: bool):
 
 def test_invalid_format():
     with pytest.raises(InvalidFormat):
-        Config(log_format="%(test)s", construction_mode="test")
+        Config(log_format="%(test)s %(message)s", construction_mode="test")
 
 
 def test_invalid_date_format():

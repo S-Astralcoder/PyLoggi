@@ -48,6 +48,8 @@ valid_formats = [
 class Config(BaseModel):
     construction_mode: Literal["dev", "test", "default"] = "default"
 
+    disable_auto_level_construction : bool = False
+
     console_logging: bool = True
     file_logging: bool = False
 
@@ -75,7 +77,7 @@ class Config(BaseModel):
             raise InvalidFormat("The Give Log Format is Invalid")
 
         date_format_tags = regex.findall("%(.)", self.date_format)
-        if not all([format in "H M S Y m d".split(" ") for format in date_format_tags]):
+        if not all([format in "Y m d H M S I p a A b B j U W w w f u V G X x c Z z %".split(" ") for format in date_format_tags]):
             raise InvalidFormat("The Give Date Format is Invalid")
 
 

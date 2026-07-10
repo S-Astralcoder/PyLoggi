@@ -12,8 +12,8 @@ class Log:
     def __init__(
         self,
         logger_name: str,
-        config: Config = Config(),
-        color_config: ColorConfig = ColorConfig(),
+        config: Config,
+        color_config: ColorConfig,
     ) -> None:
         self.validate_parameters(config=config, color_config=color_config)
         self._logger_name = self._validate_logger(logger_name=logger_name)
@@ -43,12 +43,17 @@ class Log:
     def _validate_logger(self, logger_name: str) -> str:
         if self._is_logger_exist(logger_name=logger_name):
             raise DuplicateLogger(logger_name=logger_name)
-
-        self._add_log_to_global_list(logger_name=logger_name)
+        elif type(logger_name) != str:
+            raise TypeError("The Given Logger Argument is Invalid")
+        else:
+            self._add_log_to_global_list(logger_name=logger_name)
         return logger_name
 
     def _initial_setup(self) -> None:
-        self.logger.handlers.clear()
+        while self.logger.handlers:
+            handler = self.logger.handlers[0]
+            handler.close()
+            self.logger.removeHandler(handler)  
         self.logger.propagate = False
         self.logger.setLevel(self._config.logging_level)
 
@@ -73,8 +78,9 @@ class Log:
             )
 
     def dev_handler_setup(self):
-        self._config.logging_level = "DEBUG"
-        self.logger.setLevel(logging.DEBUG)
+        if not self._config.disable_auto_level_construction:
+            self._config.logging_level = "DEBUG"
+            self.logger.setLevel(logging.DEBUG)
         if self._config.console_logging:
             self.logger.addHandler(
                 ConsoleHandler(
@@ -89,11 +95,22 @@ class Log:
             )
 
     def test_handler_setup(self):
-        self._config.logging_level = "WARNING"
-        self.logger.setLevel(logging.WARNING)
+        if not self._config.disable_auto_level_construction:
+            self._config.logging_level = "WARNING"
+            self.logger.setLevel(logging.WARNING)
         self._config.log_file_path = (
             Path(self._config.log_file_path).parent / "test_log.txt"
         )
+        if not self._config.disable_auto_level_construction:
+            self._config.console_logging = False
+            self._config.file_logging = True
+        
+        if self._config.console_logging:
+            self.logger.addHandler(
+                ConsoleHandler(
+                    config=self._config, color_config=self._color_config
+                ).get_console_handler()
+            )
         if self._config.file_logging:
             self.logger.addHandler(
                 FileHandler(
