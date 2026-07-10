@@ -17,7 +17,7 @@ class ConsoleHandler:
             console_handler.setFormatter(
                 CustomFormatter(
                     log_format=self._config.log_format,
-                    date_format=self._config.date_format,
+                    config=self._config,
                     color_config=self._color_config,
                 )
             )
