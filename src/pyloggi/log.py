@@ -2,7 +2,7 @@ import logging
 from pathlib import Path
 
 from .config import Config, ColorConfig
-from .exceptions import DuplicateLogger, InvalidConfigure, InvalidConstructionMode
+from .exceptions import DuplicateLogger, EmptyLoggerName, InvalidConfigure, InvalidConstructionMode
 from .handlers import ConsoleHandler, FileHandler
 
 
@@ -45,6 +45,8 @@ class Log:
             raise DuplicateLogger(logger_name=logger_name)
         elif not isinstance(logger_name, str):
             raise TypeError("The Given Logger Argument is Invalid")
+        elif logger_name.strip() == "":
+            raise EmptyLoggerName("The logger name passed shouldn't be empty string")
         else:
             self._add_log_to_global_list(logger_name=logger_name)
         return logger_name
@@ -53,7 +55,7 @@ class Log:
         while self.logger.handlers:
             handler = self.logger.handlers[0]
             handler.close()
-            self.logger.removeHandler(handler)  
+            self.logger.removeHandler(handler)
         self.logger.propagate = False
         self.logger.setLevel(self._config.logging_level)
 
@@ -104,7 +106,7 @@ class Log:
         if not self._config.disable_auto_level_construction:
             self._config.console_logging = False
             self._config.file_logging = True
-        
+
         if self._config.console_logging:
             self.logger.addHandler(
                 ConsoleHandler(

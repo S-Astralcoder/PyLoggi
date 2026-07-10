@@ -7,7 +7,7 @@ from .config import ColorConfig, Config
 
 class CustomFormatter(logging.Formatter):
     def __init__(
-        self, log_format: str, config : Config, color_config: ColorConfig
+        self, log_format: str, config: Config, color_config: ColorConfig
     ) -> None:
         self.validate_parameters(color_config=color_config)
         self._color_config = color_config

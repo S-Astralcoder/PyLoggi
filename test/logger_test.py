@@ -1,4 +1,3 @@
-import logging
 import pytest
 
 from pyloggi import Log
@@ -6,9 +5,11 @@ from pyloggi import DuplicateLogger
 from pyloggi.config import ColorConfig, Config
 from pyloggi.exceptions import InvalidConfigure, InvalidFormat
 
+
 @pytest.fixture
 def default_logger():
     return Log("default", Config(), ColorConfig())
+
 
 def test_duplicate_logger():
     logger_name = "log1"
@@ -19,12 +20,10 @@ def test_duplicate_logger():
         Log(logger_name=logger_name, config=Config(), color_config=ColorConfig())
 
 
-
 def test_invalid_name_parameters():
     with pytest.raises(TypeError):
         Log(10, Config(), ColorConfig())
-    assert 10 not in Log("tester", Config(), ColorConfig()).active_loggers 
-    
+    assert 10 not in Log("tester", Config(), ColorConfig()).active_loggers
 
 
 def test_invalid_config_parameter():
@@ -37,12 +36,30 @@ def test_invalid_config_parameter():
 
 def test_invalid_format():
     with pytest.raises(InvalidFormat):
-        Log("test", Config(log_format="%(test)s %(bad)d", construction_mode="test"), ColorConfig())
+        Log(
+            "test",
+            Config(log_format="%(test)s %(bad)d %(message", construction_mode="test"),
+            ColorConfig(),
+        )
+
 
 def test_custom_color_console_output(capsys):
-    logger = Log(logger_name="color_test", color_config=ColorConfig(enabled_console_color=True), config=Config(log_format="%(message)s", construction_mode="dev"))
-    
-    expected_logs = [color_code + "test\x1b[37;20m\n" for color_code in ["\x1b[36;20m", "\x1b[32;20m", "\x1b[33;20m", "\x1b[31;20m", "\x1b[31;1m"]]
+    logger = Log(
+        logger_name="color_test",
+        color_config=ColorConfig(enabled_console_color=True),
+        config=Config(log_format="%(message)s", construction_mode="dev"),
+    )
+
+    expected_logs = [
+        color_code + "test\x1b[37;20m\n"
+        for color_code in [
+            "\x1b[36;20m",
+            "\x1b[32;20m",
+            "\x1b[33;20m",
+            "\x1b[31;20m",
+            "\x1b[31;1m",
+        ]
+    ]
     logger.logger.debug("test")
     capture = capsys.readouterr()
     assert capture.err in expected_logs
@@ -80,10 +97,3 @@ def test_file_log_output(tmp_path):
         lines = file.readlines()
         for test_string in ["test\n", "what\n"]:
             assert test_string in lines
-        
-
-
-
-
-
-
