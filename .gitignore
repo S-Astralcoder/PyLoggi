@@ -44,6 +44,7 @@ htmlcov/
 logs/
 log/
 freespace/
+*.txt
 
 # Local environment files and secrets
 .env
