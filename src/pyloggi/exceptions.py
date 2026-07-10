@@ -25,3 +25,7 @@ class InvalidFormat(Exception):
 class EmptyLoggerName(Exception):
     def __init__(self, *args: object) -> None:
         super().__init__(*args)
+
+class LimitationError(Exception):
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)

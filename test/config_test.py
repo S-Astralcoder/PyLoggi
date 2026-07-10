@@ -57,9 +57,10 @@ def test_invalid_color_toggle(value: bool):
         ColorConfig(enabled_console_color=value)
 
 
-def test_invalid_format():
+@pytest.mark.parametrize(("formats"), [])
+def test_invalid_format(formats : str):
     with pytest.raises(InvalidFormat):
-        Config(log_format="%(test)s %(message)s %(message", construction_mode="test")
+        Config(log_format=formats, construction_mode="test")
 
 
 def test_invalid_date_format():

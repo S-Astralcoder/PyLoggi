@@ -72,9 +72,13 @@ class Config(BaseModel):
         if not folder_path.exists():
             raise FileNotFoundError("The Give File Path doesn't Exist")
 
-        format_tags = regex.findall(r"%\((.*?)\)[a-zA-Z0-9]", self.log_format)
-        if not all([format in valid_formats for format in format_tags]):
+        format_tags = regex.findall(r"(?<=%[\(%])\w+", self.log_format)
+        if not all([format in valid_formats for format in format_tags]) or not format_tags or regex.findall(r"%(?![%(])[^s]*?(?:s(?!$)|[^s])?", self.log_format):
             raise InvalidFormat("The Give Log Format is Invalid")
+        for tags in format_tags:
+            validation_pattern = fr"%[\(%]{tags}\)s"
+            if not regex.search(validation_pattern, self.log_format):
+                raise InvalidFormat(f"The Give Log Format for {tags} tag is Invalid")
 
         date_format_tags = regex.findall("%(.)", self.date_format)
         if not all(

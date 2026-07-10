@@ -2,7 +2,7 @@ import logging
 from pathlib import Path
 
 from .config import Config, ColorConfig
-from .exceptions import DuplicateLogger, EmptyLoggerName, InvalidConfigure, InvalidConstructionMode
+from .exceptions import DuplicateLogger, EmptyLoggerName, InvalidConfigure, InvalidConstructionMode, LimitationError
 from .handlers import ConsoleHandler, FileHandler
 
 
@@ -14,7 +14,9 @@ class Log:
         logger_name: str,
         config: Config,
         color_config: ColorConfig,
+        allow_duplicates : bool = False,
     ) -> None:
+        self.allow_duplicates = allow_duplicates
         self.validate_parameters(config=config, color_config=color_config)
         self._logger_name = self._validate_logger(logger_name=logger_name)
         self._config = config
@@ -26,7 +28,8 @@ class Log:
 
     @classmethod
     def _add_log_to_global_list(cls, logger_name: str) -> None:
-        cls.active_loggers.append(logger_name)
+        if logger_name not in cls.active_loggers:
+            cls.active_loggers.append(logger_name)
 
     @classmethod
     def _is_logger_exist(cls, logger_name: str) -> bool:
@@ -41,12 +44,14 @@ class Log:
             raise InvalidConfigure("Invalid ColorConfig passed as a parameter")
 
     def _validate_logger(self, logger_name: str) -> str:
-        if self._is_logger_exist(logger_name=logger_name):
+        if self._is_logger_exist(logger_name=logger_name) and not self.allow_duplicates:
             raise DuplicateLogger(logger_name=logger_name)
         elif not isinstance(logger_name, str):
             raise TypeError("The Given Logger Argument is Invalid")
         elif logger_name.strip() == "":
             raise EmptyLoggerName("The logger name passed shouldn't be empty string")
+        elif logger_name.strip() == "root":
+            raise LimitationError("Logger name 'root' is not allowed")
         else:
             self._add_log_to_global_list(logger_name=logger_name)
         return logger_name

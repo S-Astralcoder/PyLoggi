@@ -34,11 +34,27 @@ def test_invalid_config_parameter():
         Log("name", Config(), "test")
 
 
-def test_invalid_format():
+@pytest.mark.parametrize(
+    ("log_format"),
+    [
+        "%(test)s",
+        "%(bad)d",
+        "%(message)s %(bad)d",
+        "%(message",
+        "%(message)",
+        "%(message)q",
+        "%(message)s %",
+        "%(message)s %q",
+        "%(message)s %(bad)",
+        "plain text with no fields",
+    ],
+)
+def test_invalid_format(log_format: str):
+    Log.active_loggers.clear()
     with pytest.raises(InvalidFormat):
         Log(
             "test",
-            Config(log_format="%(test)s %(bad)d %(message", construction_mode="test"),
+            Config(log_format=log_format, construction_mode="test"),
             ColorConfig(),
         )
 
