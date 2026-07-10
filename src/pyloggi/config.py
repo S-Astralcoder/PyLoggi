@@ -33,19 +33,22 @@ class Config(BaseModel):
     console_logging: bool = True
     file_logging: bool = False
 
-    log_format: str = "%(asctime)s : %(levelname)s - %(name)s > %(message)s"
-    date_format : str = ""
+    log_format: str = "[%(asctime)s] : %(levelname)s - %(name)s > %(message)s"
+    date_format: str = "%Y-%m-%d %H:%M:%S"
 
     logging_level: Literal[
         "NOTSET", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"
     ] = "INFO"
 
-    log_file_path: str | Path = Path.cwd()
+    log_file_path: str | Path = Path.cwd() / "log.txt"
 
+    def model_post_init(self, context: Any, /) -> None:
+        folder_path = self.log_file_path.parent if self.log_file_path.is_file() else self.log_file_path
+        if not Path(folder_path).exists():
+            raise FileNotFoundError("The Give File Path doesn't Exist")
 
 class ColorConfig(BaseModel):
     enabled_console_color: bool = False
-    enabled_log_file_color: bool = False
 
     debug: ColorName = "cyan"
     info: ColorName = "green"
@@ -54,6 +57,7 @@ class ColorConfig(BaseModel):
     critical: ColorName = "dark red"
 
     def model_post_init(self, context: Any, /) -> None:
+
         color_map = {
             "black": "\x1b[30;20m",
             "red": "\x1b[31;20m",
