@@ -43,7 +43,7 @@ class Log:
     def _validate_logger(self, logger_name: str) -> str:
         if self._is_logger_exist(logger_name=logger_name):
             raise DuplicateLogger(logger_name=logger_name)
-        elif type(logger_name) != str:
+        elif not isinstance(logger_name, str):
             raise TypeError("The Given Logger Argument is Invalid")
         else:
             self._add_log_to_global_list(logger_name=logger_name)
@@ -98,9 +98,9 @@ class Log:
         if not self._config.disable_auto_level_construction:
             self._config.logging_level = "WARNING"
             self.logger.setLevel(logging.WARNING)
-        self._config.log_file_path = (
-            Path(self._config.log_file_path).parent / "test_log.txt"
-        )
+            self._config.log_file_path = (
+                Path(self._config.log_file_path).parent / "test_log.txt"
+            )
         if not self._config.disable_auto_level_construction:
             self._config.console_logging = False
             self._config.file_logging = True

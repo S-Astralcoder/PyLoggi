@@ -37,7 +37,7 @@ def test_invalid_config_parameter():
 
 def test_invalid_format():
     with pytest.raises(InvalidFormat):
-        Log("test", Config(log_format="%(test)s", construction_mode="test"), ColorConfig())
+        Log("test", Config(log_format="%(test)s %(bad)d", construction_mode="test"), ColorConfig())
 
 def test_custom_color_console_output(capsys):
     logger = Log(logger_name="color_test", color_config=ColorConfig(enabled_console_color=True), config=Config(log_format="%(message)s", construction_mode="dev"))
