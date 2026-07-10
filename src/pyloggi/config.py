@@ -72,7 +72,14 @@ class Config(BaseModel):
 
         format_tags = regex.findall(r"%\((.*?)\)s", self.log_format)
         if not all([format in valid_formats for format in format_tags]):
-            raise InvalidFormat("The Give Format is Invalid")
+            raise InvalidFormat("The Give Log Format is Invalid")
+
+        date_format_tags = regex.findall("%(.)", self.date_format)
+        if not all([format in "H M S Y m d".split(" ") for format in date_format_tags]):
+            raise InvalidFormat("The Give Date Format is Invalid")
+        
+
+
 
 
 class ColorConfig(BaseModel):
