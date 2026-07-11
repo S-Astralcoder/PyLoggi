@@ -14,6 +14,35 @@ pyloggi validates setup early and returns clear errors for common mistakes, such
 as invalid logger names, unsupported file extensions, missing log directories,
 bad format strings, and duplicate logger names.
 
+## v0.1.0 Summary
+
+pyloggi v0.1.0 is a lightweight logging setup helper built on top of Python's
+standard `logging` module.
+
+Current features:
+
+- Standard logger creation through `Log`
+- Convenience `get_logger()` function
+- Console logging
+- File logging
+- Optional colored console output
+- Pydantic-based config validation
+- Custom exceptions for pyloggi validation errors
+- Duplicate logger protection
+- Prebuilt construction modes: `default`, `dev`, and `test`
+- Basic pytest coverage
+- README usage documentation
+
+Deferred to the next version:
+
+- Better test isolation
+- More complete tests for `get_logger()`
+- UTF-8 file logging
+- Cleaner mode override naming
+- Non-mutating config resolution
+- Review whether `regex` can be replaced with Python's built-in `re`
+- Review whether Python support can be lowered from `>=3.12` to `>=3.11`
+
 ## Requirements
 
 pyloggi requires Python 3.12 or newer.
