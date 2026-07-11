@@ -1,4 +1,8 @@
-"""Formatter support for colorized console log output."""
+"""Formatter support for colorized console log output.
+
+``CustomFormatter`` chooses a colored format string based on the log record's
+level, then delegates the final message rendering to ``logging.Formatter``.
+"""
 
 from typing import Any
 import logging
@@ -8,7 +12,7 @@ from .config import ColorConfig, Config
 
 
 class CustomFormatter(logging.Formatter):
-    """Apply log-level-specific ANSI colors to formatted console records."""
+    """Apply level-specific ANSI colors to console log records."""
 
     def __init__(
         self, log_format: str, config: Config, color_config: ColorConfig
@@ -34,7 +38,9 @@ class CustomFormatter(logging.Formatter):
         """Ensure the formatter receives a valid color configuration."""
 
         if not isinstance(color_config, ColorConfig):
-            raise InvalidConfigure("Invalid ColorConfig passed as a parameter")
+            raise InvalidConfigure(
+                "color_config must be an instance of pyloggi.config.ColorConfig."
+            )
 
     def format(self, record: Any):
         """Format a log record with the color assigned to its level."""

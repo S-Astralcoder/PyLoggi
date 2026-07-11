@@ -1,4 +1,8 @@
-"""High-level logger construction for pyloggi."""
+"""High-level logger construction for pyloggi.
+
+Use ``Log`` when you need access to pyloggi's wrapper object. Use
+``get_logger()`` when you only need a standard ``logging.Logger``.
+"""
 
 import logging
 from pathlib import Path
@@ -17,8 +21,9 @@ from .handlers import ConsoleHandler, FileHandler
 class Log:
     """Build a named logger from pyloggi configuration objects.
 
-    The class owns validation, duplicate-name tracking, base logger setup, and
-    handler construction for the supported construction modes.
+    The class validates names and configuration objects, tracks registered
+    logger names, resets existing handlers for the selected logger, and attaches
+    handlers for the configured construction mode.
     """
 
     active_loggers: set[str] = set()
@@ -56,22 +61,31 @@ class Log:
         """Ensure logger setup receives the expected configuration objects."""
 
         if not isinstance(config, Config):
-            raise InvalidConfigure("Invalid Config passed as a parameter")
+            raise InvalidConfigure(
+                "config must be an instance of pyloggi.config.Config."
+            )
         if not isinstance(color_config, ColorConfig):
-            raise InvalidConfigure("Invalid ColorConfig passed as a parameter")
+            raise InvalidConfigure(
+                "color_config must be an instance of pyloggi.config.ColorConfig."
+            )
 
     def _validate_logger(self, logger_name: str) -> str:
-        """Validate and register a logger name."""
+        """Validate, normalize, and register a logger name."""
         if not isinstance(logger_name, str):  # pyright: ignore[reportUnnecessaryIsInstance]
-            raise TypeError("logger_name must be a string")
+            raise TypeError(
+                f"logger_name must be a string, got {type(logger_name).__name__}."
+            )
 
         logger_name = logger_name.strip()
 
         if logger_name == "":
-            raise EmptyLoggerName("logger_name should not be empty")
+            raise EmptyLoggerName("logger_name cannot be empty or only whitespace.")
 
         if logger_name == "root":
-            raise LimitationError("Logger name 'root' is not allowed")
+            raise LimitationError(
+                "logger_name='root' is not allowed because pyloggi would modify "
+                "the Python root logger."
+            )
 
         if self._is_logger_exist(logger_name) and not self.allow_duplicates:
             raise DuplicateLogger(logger_name)
@@ -99,7 +113,9 @@ class Log:
         elif self._config.construction_mode == "test":
             self.test_handler_setup()
         else:
-            raise InvalidConstructionMode("Invalid Construction Mode")
+            raise InvalidConstructionMode(
+                "Invalid construction_mode. Use 'default', 'dev', or 'test'."
+            )
 
     def default_handler_setup(self):
         """Attach handlers using the configuration exactly as provided."""
@@ -171,6 +187,8 @@ def get_logger(
     color_config: ColorConfig | None = None,
     allow_duplicates: bool = False,
 ) -> logging.Logger:
+    """Create a pyloggi logger and return the underlying ``logging.Logger``."""
+
     log = Log(
         logger_name=name,
         config=config or Config(),

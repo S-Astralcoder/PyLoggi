@@ -1,4 +1,9 @@
-"""Configuration models and validation rules for pyloggi loggers."""
+"""Configuration models and validation rules for pyloggi loggers.
+
+``Config`` validates logger behavior before handlers are created. ``ColorConfig``
+validates color names and converts them to ANSI escape sequences used by the
+console formatter.
+"""
 
 from pydantic import BaseModel
 from typing import Any, Literal
@@ -50,9 +55,9 @@ valid_formats = [
 class Config(BaseModel):
     """Runtime configuration for console and file logging.
 
-    The model validates file output settings, logging format placeholders,
-    date-format tokens, logging level, and construction mode before a logger is
-    created.
+    File path validation runs only when file logging is enabled. Log and date
+    formats are always validated so invalid formatter strings fail during
+    configuration rather than later during logging.
     """
 
     construction_mode: Literal["dev", "test", "default"] = "default"
@@ -72,7 +77,7 @@ class Config(BaseModel):
     log_file_path: str | Path = Path.cwd() / "log.txt"
 
     def model_post_init(self, context: Any, /) -> None:
-        """Validate path, log-format, and date-format settings after parsing."""
+        """Validate file, log-format, and date-format settings after parsing."""
 
         if self.file_logging:
             log_file_path = Path(self.log_file_path)
@@ -81,10 +86,13 @@ class Config(BaseModel):
             )
             if log_file_path.suffix not in (".txt", ".rtf"):
                 raise InvalidFileType(
-                    f"The Give File Name [{log_file_path.suffix}] Is Invalid"
+                    "Unsupported log file extension "
+                    f"{log_file_path.suffix!r}. Use '.txt' or '.rtf'."
                 )
             if not folder_path.exists():
-                raise FileNotFoundError("The Give File Path doesn't Exist")
+                raise FileNotFoundError(
+                    f"Log file directory does not exist: {folder_path}"
+                )
 
         format_tags = regex.findall(r"(?<=%[\(%])\w+", self.log_format)
         # Accept only known logging fields and reject malformed percent patterns.
@@ -93,11 +101,17 @@ class Config(BaseModel):
             or not format_tags
             or regex.findall(r"%(?![%(])[^s]*?(?:s(?!$)|[^s])?", self.log_format)
         ):
-            raise InvalidFormat("The Give Log Format is Invalid")
+            raise InvalidFormat(
+                "Invalid log_format. Use at least one supported field such as "
+                "'%(message)s', and use only simple '%(field)s' placeholders."
+            )
         for tags in format_tags:
             validation_pattern = rf"%[\(%]{tags}\)s"
             if not regex.search(validation_pattern, self.log_format):
-                raise InvalidFormat(f"The Give Log Format for {tags} tag is Invalid")
+                raise InvalidFormat(
+                    f"Invalid log_format placeholder for {tags!r}. "
+                    "Use the exact form '%(field)s'."
+                )
 
         date_format_tags = regex.findall("%(.)", self.date_format)
         # Keep date formatting limited to strftime tokens supported by Python.
@@ -108,11 +122,18 @@ class Config(BaseModel):
                 for format in date_format_tags
             ]
         ):
-            raise InvalidFormat("The Give Date Format is Invalid")
+            raise InvalidFormat(
+                "Invalid date_format. Use supported Python strftime tokens "
+                "such as '%Y', '%m', '%d', '%H', '%M', and '%S'."
+            )
 
 
 class ColorConfig(BaseModel):
-    """Color choices for console output by log level."""
+    """Color choices for console output by log level.
+
+    Pydantic validates the configured color names. After validation, each color
+    field stores the ANSI escape sequence used by ``CustomFormatter``.
+    """
 
     enabled_console_color: bool = False
 

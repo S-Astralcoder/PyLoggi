@@ -1,15 +1,22 @@
-"""Custom exceptions raised by pyloggi."""
+"""Project-specific exceptions raised by pyloggi.
+
+The exception types keep validation failures explicit, so callers can catch
+package errors without parsing generic ``ValueError`` or ``TypeError`` text.
+"""
 
 
 class DuplicateLogger(Exception):
     """Raised when a logger name is reused without duplicate support enabled."""
 
     def __init__(self, logger_name: str) -> None:
-        super().__init__(f"Logger {logger_name} Already Exists")
+        super().__init__(
+            f"Logger name {logger_name!r} is already registered. "
+            "Use allow_duplicates=True if you want to recreate this logger."
+        )
 
 
 class InvalidConstructionMode(Exception):
-    """Raised when an unsupported logger construction mode is requested."""
+    """Raised when a logger construction mode is not supported."""
 
     def __init__(self, *args: object) -> None:
         super().__init__(*args)
@@ -23,7 +30,7 @@ class InvalidFileType(Exception):
 
 
 class InvalidConfigure(Exception):
-    """Raised when a configuration object has the wrong type."""
+    """Raised when a pyloggi component receives the wrong configuration type."""
 
     def __init__(self, *args: object) -> None:
         super().__init__(*args)

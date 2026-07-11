@@ -10,6 +10,10 @@ pass both into `Log`, then use the standard `logging.Logger` available at
 `logger.logger`. For simpler code, use `get_logger()` to create and return the
 standard logger directly.
 
+pyloggi validates setup early and returns clear errors for common mistakes, such
+as invalid logger names, unsupported file extensions, missing log directories,
+bad format strings, and duplicate logger names.
+
 ## Requirements
 
 pyloggi requires Python 3.12 or newer.
@@ -169,6 +173,10 @@ Invalid or unsupported formats raise `InvalidFormat`. Examples include unknown
 fields, unsupported conversion types, incomplete percent syntax, and plain text
 with no logging fields.
 
+Error messages point to the failing setting. For example, an invalid log format
+explains that pyloggi supports simple `%(field)s` placeholders such as
+`%(message)s`.
+
 ## Date Format
 
 `date_format` uses Python `strftime` tokens.
@@ -180,6 +188,9 @@ Config(
 ```
 
 Invalid date-format tokens raise `InvalidFormat`.
+
+When the date format is invalid, the error message recommends supported Python
+`strftime` tokens such as `%Y`, `%m`, `%d`, `%H`, `%M`, and `%S`.
 
 ## Console Colors
 
@@ -265,35 +276,52 @@ pyloggi raises custom exceptions for common configuration errors:
 
 | Exception | Meaning |
 | --- | --- |
-| `DuplicateLogger` | A logger name was reused without `allow_duplicates=True`. |
+| `DuplicateLogger` | A logger name was reused without `allow_duplicates=True`; the error message includes the duplicated name. |
 | `EmptyLoggerName` | The logger name was empty or whitespace-only. |
 | `LimitationError` | A blocked option was requested, such as using `"root"` as the logger name. |
 | `InvalidConfigure` | `Log` or `CustomFormatter` received the wrong configuration object type. |
-| `InvalidConstructionMode` | An unsupported construction mode was requested. |
-| `InvalidFileType` | The configured log file extension is not supported. |
-| `InvalidFormat` | The log or date format is invalid. |
+| `InvalidConstructionMode` | An unsupported construction mode was requested; use `"default"`, `"dev"`, or `"test"`. |
+| `InvalidFileType` | The configured log file extension is not supported; use `.txt` or `.rtf`. |
+| `InvalidFormat` | The log or date format is invalid, with feedback about the expected format style. |
+
+pyloggi also uses standard Python exceptions where they fit better. For example,
+an internal handler subclass that does not implement `_setup_handler()` raises
+`NotImplementedError`.
+
+## Error Feedback
+
+pyloggi tries to fail at configuration time instead of failing later while a log
+message is being written.
+
+Common feedback examples:
+
+- `logger_name must be a string, got int.`
+- `logger_name cannot be empty or only whitespace.`
+- `logger_name='root' is not allowed because pyloggi would modify the Python root logger.`
+- `config must be an instance of pyloggi.config.Config.`
+- `color_config must be an instance of pyloggi.config.ColorConfig.`
+- `Unsupported log file extension '.log'. Use '.txt' or '.rtf'.`
+- `Log file directory does not exist: logs`
+- `Invalid construction_mode. Use 'default', 'dev', or 'test'.`
 
 ## Intended Design
 
-The project design is:
+pyloggi is built around a few simple rules:
 
-- Provide an initial package structure for a focused logging helper.
-- Use `Config` as the single place for logger behavior and validation.
-- Use `ColorConfig` as the single place for console color choices.
-- Build a main `Log` class that creates and exposes a standard
-  `logging.Logger`.
-- Provide separate console and file handler builders.
+- Keep logger setup small and predictable.
+- Keep `Config` responsible for logger behavior and validation.
+- Keep `ColorConfig` responsible for console color choices.
+- Expose a standard `logging.Logger` so normal Python logging methods still work.
+- Build console and file handlers through separate handler classes.
 - Expose handlers with a shared `get_handler()` method.
-- Ensure `FileHandler` stores a real file handler instead of the inherited
-  console handler.
-- Store active logger names in a set so duplicate checks are direct and stable.
-- Validate edge cases early, including invalid logger names, invalid file paths,
-  bad log formats, bad date formats, duplicate loggers, and accidental root
-  logger use.
+- Store `FileHandler.handler` as a real `logging.FileHandler`.
+- Store active logger names in a set for direct duplicate checks.
+- Strip logger names before storing them.
+- Reject unsafe names such as an empty string or `"root"`.
 - Validate file paths only when file logging is enabled.
-- Keep automatic construction modes because they are part of the package's
-  convenience goal, while allowing callers to disable automatic mode changes
-  when they need manual control.
+- Validate format strings early so bad placeholders do not fail later.
+- Keep automatic construction modes for convenience, with
+  `disable_auto_level_construction=True` available when manual control matters.
 
 ## Development Checks
 
