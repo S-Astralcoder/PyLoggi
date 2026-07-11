@@ -93,8 +93,8 @@ def test_custom_color_console_output(capsys):
 
 
 @pytest.mark.xfail(reason="Current Log behavior does not create the configured file")
-def test_file_log_output(tmp_path): # pyright: ignore[reportUnknownParameterType]
-    file_path = tmp_path / "test_log.txt" #  pyright: ignore[reportUnknownVariableType] 
+def test_file_log_output(tmp_path):  # pyright: ignore[reportUnknownParameterType]
+    file_path = tmp_path / "test_log.txt"  #  pyright: ignore[reportUnknownVariableType]
     logger = Log(
         logger_name="file_log_test",
         config=Config(
@@ -109,7 +109,7 @@ def test_file_log_output(tmp_path): # pyright: ignore[reportUnknownParameterType
     logger.logger.info("test")
     logger.logger.debug("what")
 
-    with open(file_path, "r") as file: # pyright: ignore[reportUnknownArgumentType]
+    with open(file_path, "r") as file:  # pyright: ignore[reportUnknownArgumentType]
         lines = file.readlines()
         for test_string in ["test\n", "what\n"]:
             assert test_string in lines

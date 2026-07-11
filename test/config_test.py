@@ -23,7 +23,7 @@ def test_invalid_file_path(file_path: str):
 @pytest.mark.parametrize(("mode"), ["mark", "admin"])
 def test_invalid_construction_mode(mode: str):
     with pytest.raises(ValidationError):
-        Config(construction_mode=mode) # pyright: ignore[reportArgumentType]
+        Config(construction_mode=mode)  # pyright: ignore[reportArgumentType]
 
 
 @pytest.mark.parametrize(
@@ -37,19 +37,19 @@ def test_invalid_logging_bool(console_mode: bool, file_mode: bool):
 @pytest.mark.parametrize(("level"), ["test", "mark"])
 def test_logging_level(level: str):
     with pytest.raises(ValidationError):
-        Config(logging_level=level) # pyright: ignore[reportArgumentType]
+        Config(logging_level=level)  # pyright: ignore[reportArgumentType]
 
 
 @pytest.mark.parametrize(("color"), ["lonna", "london"])
-def test_unknown_color(color: str): 
+def test_unknown_color(color: str):
     with pytest.raises(ValidationError):
         ColorConfig(
             enabled_console_color=True,
-            debug=color,# pyright: ignore[reportArgumentType]
-            info=color,# pyright: ignore[reportArgumentType]
-            warning=color,# pyright: ignore[reportArgumentType]
-            error=color,# pyright: ignore[reportArgumentType]
-            critical=color,# pyright: ignore[reportArgumentType]
+            debug=color,  # pyright: ignore[reportArgumentType]
+            info=color,  # pyright: ignore[reportArgumentType]
+            warning=color,  # pyright: ignore[reportArgumentType]
+            error=color,  # pyright: ignore[reportArgumentType]
+            critical=color,  # pyright: ignore[reportArgumentType]
         )
 
 

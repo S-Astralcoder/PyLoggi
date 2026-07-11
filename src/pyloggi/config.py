@@ -76,7 +76,9 @@ class Config(BaseModel):
 
         if self.file_logging:
             log_file_path = Path(self.log_file_path)
-            folder_path = log_file_path if log_file_path.is_dir() else log_file_path.parent
+            folder_path = (
+                log_file_path if log_file_path.is_dir() else log_file_path.parent
+            )
             if log_file_path.suffix not in (".txt", ".rtf"):
                 raise InvalidFileType(
                     f"The Give File Name [{log_file_path.suffix}] Is Invalid"

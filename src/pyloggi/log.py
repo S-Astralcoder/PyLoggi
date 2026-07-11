@@ -62,7 +62,7 @@ class Log:
 
     def _validate_logger(self, logger_name: str) -> str:
         """Validate and register a logger name."""
-        if not isinstance(logger_name, str): # pyright: ignore[reportUnnecessaryIsInstance]
+        if not isinstance(logger_name, str):  # pyright: ignore[reportUnnecessaryIsInstance]
             raise TypeError("logger_name must be a string")
 
         logger_name = logger_name.strip()
@@ -163,6 +163,7 @@ class Log:
         """Return the names registered through ``Log`` instances."""
 
         return cls.active_loggers
+
 
 def get_logger(
     name: str,
