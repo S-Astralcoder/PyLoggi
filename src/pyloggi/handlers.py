@@ -50,6 +50,7 @@ class FileHandler(ConsoleHandler):
         """Initialize file logging with the same configuration interface."""
 
         super().__init__(config=config, color_config=color_config)
+        self.handler = self._setup_handler()
 
     def _setup_handler(self) -> logging.FileHandler:
         """Create a file handler that writes plain text log records."""

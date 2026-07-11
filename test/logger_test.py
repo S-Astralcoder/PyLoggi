@@ -92,7 +92,6 @@ def test_custom_color_console_output(capsys):
     assert capture.err in expected_logs
 
 
-@pytest.mark.xfail(reason="Current Log behavior does not create the configured file")
 def test_file_log_output(tmp_path):  # pyright: ignore[reportUnknownParameterType]
     file_path = tmp_path / "test_log.txt"  #  pyright: ignore[reportUnknownVariableType]
     logger = Log(

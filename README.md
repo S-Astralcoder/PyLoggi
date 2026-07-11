@@ -2,12 +2,22 @@
 
 pyloggi is a small convenience layer over Python's built-in `logging` module.
 It creates ready-to-use named loggers with validated configuration, optional
-console colors, file logging, and preset construction modes for common
-development and test workflows.
+console colors, file logging, controlled duplicate-name handling, and preset
+construction modes for common development and test workflows.
 
 The package is intentionally simple: create a `Config`, create a `ColorConfig`,
 pass both into `Log`, then use the standard `logging.Logger` available at
-`logger.logger`.
+`logger.logger`. For simpler code, use `get_logger()` to create and return the
+standard logger directly.
+
+## Requirements
+
+pyloggi requires Python 3.12 or newer.
+
+Runtime dependencies:
+
+- `pydantic`
+- `regex`
 
 ## Quick Start
 
@@ -25,6 +35,17 @@ log.logger.info("Application started")
 log.logger.warning("Something needs attention")
 ```
 
+You can also use `get_logger()` when you only need the standard
+`logging.Logger` object:
+
+```python
+from pyloggi.log import get_logger
+
+logger = get_logger("app")
+
+logger.info("Application started")
+```
+
 By default, pyloggi logs to the console with this format:
 
 ```text
@@ -34,6 +55,9 @@ By default, pyloggi logs to the console with this format:
 ## Console and File Logging
 
 Console logging is enabled by default. File logging is disabled by default.
+
+`log_file_path` is validated only when `file_logging=True`. This lets you create
+console-only loggers without needing a valid file path.
 
 ```python
 from pathlib import Path
@@ -54,11 +78,15 @@ log = Log(
 log.logger.info("This message goes to the console and log.txt")
 ```
 
-`log_file_path` must point to an existing folder and must use a supported file
-extension:
+When file logging is enabled, `log_file_path` must point to an existing folder
+and must use a supported file extension:
 
 - `.txt`
 - `.rtf`
+
+File output is covered by the test suite. The file handler stores a real
+`logging.FileHandler`, so messages are written to the configured file when
+`file_logging=True`.
 
 ## Configuration
 
@@ -85,7 +113,7 @@ Config(
 | --- | --- |
 | `"default"` | Uses your `Config` values exactly as provided. |
 | `"dev"` | Sets the logger level to `DEBUG` unless automatic construction is disabled. |
-| `"test"` | Sets the logger level to `WARNING`, disables console logging, enables file logging, and writes to `test_log.txt` unless automatic construction is disabled. |
+| `"test"` | Sets the logger level to `WARNING`, disables console logging, enables file logging, and changes the configured path to `test_log.txt` unless automatic construction is disabled. |
 
 The automatic behavior is intentional. pyloggi is designed to speed up common
 logging setup. If you want full manual control, set:
@@ -198,8 +226,10 @@ File logs are not colorized. Colors are only applied to console output.
 
 ## Duplicate Logger Names
 
-pyloggi tracks logger names created through `Log`. Duplicate names are rejected
-by default to avoid accidental handler replacement or reconfiguration.
+pyloggi tracks logger names created through `Log` in `Log.active_loggers`.
+Logger names are stripped before they are stored, so `" app "` is registered as
+`"app"`. Duplicate names are rejected by default to avoid accidental handler
+replacement or reconfiguration.
 
 ```python
 from pyloggi import Log
@@ -220,6 +250,14 @@ Log("app", Config(), ColorConfig(), allow_duplicates=True)
 
 Empty names and the literal `"root"` logger name are rejected. This protects the
 root logger from being cleared or reconfigured accidentally.
+
+You can inspect registered logger names with:
+
+```python
+from pyloggi import Log
+
+print(Log.get_active_loggers())
+```
 
 ## Exceptions
 
@@ -245,9 +283,14 @@ The project design is:
 - Build a main `Log` class that creates and exposes a standard
   `logging.Logger`.
 - Provide separate console and file handler builders.
+- Expose handlers with a shared `get_handler()` method.
+- Ensure `FileHandler` stores a real file handler instead of the inherited
+  console handler.
+- Store active logger names in a set so duplicate checks are direct and stable.
 - Validate edge cases early, including invalid logger names, invalid file paths,
   bad log formats, bad date formats, duplicate loggers, and accidental root
   logger use.
+- Validate file paths only when file logging is enabled.
 - Keep automatic construction modes because they are part of the package's
   convenience goal, while allowing callers to disable automatic mode changes
   when they need manual control.
@@ -262,6 +305,5 @@ uv run ruff check .
 uv run pyright
 ```
 
-At the time this documentation was written, tests and Ruff pass. Pyright reports
-errors in negative tests that intentionally pass invalid runtime values to check
-Pydantic and custom validation behavior.
+At the time this documentation was written, tests, Ruff, and Pyright pass. The
+test suite contains 40 passing tests.
