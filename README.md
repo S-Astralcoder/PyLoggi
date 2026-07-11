@@ -99,7 +99,7 @@ Use `Config` to control logger behavior.
 ```python
 Config(
     construction_mode="default",
-    disable_auto_level_construction=False,
+    allow_auto_level_construction=False,
     console_logging=True,
     file_logging=False,
     log_format="[%(asctime)s] : %(levelname)s - %(name)s > %(message)s",
@@ -116,17 +116,17 @@ Config(
 | Mode | Behavior |
 | --- | --- |
 | `"default"` | Uses your `Config` values exactly as provided. |
-| `"dev"` | Sets the logger level to `DEBUG` unless automatic construction is disabled. |
-| `"test"` | Sets the logger level to `WARNING`, disables console logging, enables file logging, and changes the configured path to `test_log.txt` unless automatic construction is disabled. |
+| `"dev"` | Uses your configured handlers and, when `allow_auto_level_construction=True`, sets the logger level to `DEBUG`. |
+| `"test"` | Uses your configured handlers and, when `allow_auto_level_construction=True`, sets the logger level to `WARNING`, disables console logging, enables file logging, and changes the configured path to `test_log.txt`. |
 
-The automatic behavior is intentional. pyloggi is designed to speed up common
-logging setup. If you want full manual control, set:
+Automatic construction changes are opt in. Keep
+`allow_auto_level_construction=False` when you want full manual control, or set
+it to `True` when you want the mode presets to adjust related settings for you:
 
 ```python
 Config(
     construction_mode="dev",
-    disable_auto_level_construction=True,
-    logging_level="INFO",
+    allow_auto_level_construction=True,
 )
 ```
 
@@ -320,8 +320,9 @@ pyloggi is built around a few simple rules:
 - Reject unsafe names such as an empty string or `"root"`.
 - Validate file paths only when file logging is enabled.
 - Validate format strings early so bad placeholders do not fail later.
-- Keep automatic construction modes for convenience, with
-  `disable_auto_level_construction=True` available when manual control matters.
+- Keep automatic construction mode changes opt in through
+  `allow_auto_level_construction=True`, so manual configuration remains the
+  default.
 
 ## Development Checks
 

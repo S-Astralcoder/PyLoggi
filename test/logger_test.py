@@ -62,7 +62,11 @@ def test_custom_color_console_output(capsys):
     logger = Log(
         logger_name="color_test",
         color_config=ColorConfig(enabled_console_color=True),
-        config=Config(log_format="%(message)s", construction_mode="dev"),
+        config=Config(
+            log_format="%(message)s",
+            construction_mode="dev",
+            allow_auto_level_construction=True,
+        ),
     )
 
     expected_logs = [
@@ -102,6 +106,7 @@ def test_file_log_output(tmp_path):  # pyright: ignore[reportUnknownParameterTyp
             log_file_path=file_path,  # pyright: ignore[reportUnknownArgumentType]
             console_logging=False,
             file_logging=True,
+            allow_auto_level_construction=True,
         ),
         color_config=ColorConfig(),
     )

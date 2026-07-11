@@ -57,12 +57,13 @@ class Config(BaseModel):
 
     File path validation runs only when file logging is enabled. Log and date
     formats are always validated so invalid formatter strings fail during
-    configuration rather than later during logging.
+    configuration rather than later during logging. Automatic construction mode
+    changes are opt in through ``allow_auto_level_construction``.
     """
 
     construction_mode: Literal["dev", "test", "default"] = "default"
 
-    disable_auto_level_construction: bool = False
+    allow_auto_level_construction: bool = False
 
     console_logging: bool = True
     file_logging: bool = False

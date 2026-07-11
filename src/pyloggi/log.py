@@ -130,9 +130,9 @@ class Log:
             )
 
     def dev_handler_setup(self):
-        """Attach development handlers, defaulting to DEBUG level."""
+        """Attach development handlers, optionally raising the level to DEBUG."""
 
-        if not self._config.disable_auto_level_construction:
+        if self._config.allow_auto_level_construction:
             self._config.logging_level = "DEBUG"
             self.logger.setLevel(logging.DEBUG)
         if self._config.console_logging:
@@ -149,15 +149,15 @@ class Log:
             )
 
     def test_handler_setup(self):
-        """Attach test handlers, defaulting to WARNING file-only logging."""
+        """Attach test handlers, optionally switching to WARNING file-only output."""
 
-        if not self._config.disable_auto_level_construction:
+        if self._config.allow_auto_level_construction:
             self._config.logging_level = "WARNING"
             self.logger.setLevel(logging.WARNING)
             self._config.log_file_path = (
                 Path(self._config.log_file_path).parent / "test_log.txt"
             )
-        if not self._config.disable_auto_level_construction:
+        if self._config.allow_auto_level_construction:
             self._config.console_logging = False
             self._config.file_logging = True
 
