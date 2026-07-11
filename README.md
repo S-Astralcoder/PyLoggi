@@ -237,7 +237,7 @@ pyloggi raises custom exceptions for common configuration errors:
 
 ## Intended Design
 
-The project design, based on the to-do list, is:
+The project design is:
 
 - Provide an initial package structure for a focused logging helper.
 - Use `Config` as the single place for logger behavior and validation.

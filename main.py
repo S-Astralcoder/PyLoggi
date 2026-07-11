@@ -10,6 +10,7 @@ if __name__ == "__main__":
         config=Config(
             file_logging=True,
             construction_mode="default",
+            logging_level="NOTSET"
         ),
     )
 
