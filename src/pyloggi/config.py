@@ -74,14 +74,15 @@ class Config(BaseModel):
     def model_post_init(self, context: Any, /) -> None:
         """Validate path, log-format, and date-format settings after parsing."""
 
-        log_file_path = Path(self.log_file_path)
-        folder_path = log_file_path if log_file_path.is_dir() else log_file_path.parent
-        if log_file_path.suffix not in (".txt", ".rtf"):
-            raise InvalidFileType(
-                f"The Give File Name [{log_file_path.suffix}] Is Invalid"
-            )
-        if not folder_path.exists():
-            raise FileNotFoundError("The Give File Path doesn't Exist")
+        if self.file_logging:
+            log_file_path = Path(self.log_file_path)
+            folder_path = log_file_path if log_file_path.is_dir() else log_file_path.parent
+            if log_file_path.suffix not in (".txt", ".rtf"):
+                raise InvalidFileType(
+                    f"The Give File Name [{log_file_path.suffix}] Is Invalid"
+                )
+            if not folder_path.exists():
+                raise FileNotFoundError("The Give File Path doesn't Exist")
 
         format_tags = regex.findall(r"(?<=%[\(%])\w+", self.log_format)
         # Accept only known logging fields and reject malformed percent patterns.

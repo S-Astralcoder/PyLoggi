@@ -21,7 +21,7 @@ class Log:
     handler construction for the supported construction modes.
     """
 
-    active_loggers: list[str] = []
+    active_loggers: set[str] = set()
 
     def __init__(
         self,
@@ -45,17 +45,12 @@ class Log:
     @classmethod
     def _add_log_to_global_list(cls, logger_name: str) -> None:
         """Register a logger name so duplicates can be detected later."""
-
-        if logger_name not in cls.active_loggers:
-            cls.active_loggers.append(logger_name)
+        cls.active_loggers.add(logger_name)
 
     @classmethod
     def _is_logger_exist(cls, logger_name: str) -> bool:
         """Return whether a logger name has already been registered."""
-
-        if logger_name in cls.active_loggers:
-            return True
-        return False
+        return logger_name in cls.active_loggers
 
     def validate_parameters(self, config: object, color_config: object):
         """Ensure logger setup receives the expected configuration objects."""
@@ -67,17 +62,21 @@ class Log:
 
     def _validate_logger(self, logger_name: str) -> str:
         """Validate and register a logger name."""
+        if not isinstance(logger_name, str): # pyright: ignore[reportUnnecessaryIsInstance]
+            raise TypeError("logger_name must be a string")
 
-        if self._is_logger_exist(logger_name=logger_name) and not self.allow_duplicates:
-            raise DuplicateLogger(logger_name=logger_name)
-        elif not isinstance(logger_name, str):
-            raise TypeError("The Given Logger Argument is Invalid")
-        elif logger_name.strip() == "":
-            raise EmptyLoggerName("The logger name passed shouldn't be empty string")
-        elif logger_name.strip() == "root":
+        logger_name = logger_name.strip()
+
+        if logger_name == "":
+            raise EmptyLoggerName("logger_name should not be empty")
+
+        if logger_name == "root":
             raise LimitationError("Logger name 'root' is not allowed")
-        else:
-            self._add_log_to_global_list(logger_name=logger_name)
+
+        if self._is_logger_exist(logger_name) and not self.allow_duplicates:
+            raise DuplicateLogger(logger_name)
+
+        self._add_log_to_global_list(logger_name)
         return logger_name
 
     def _initial_setup(self) -> None:
@@ -107,11 +106,11 @@ class Log:
 
         if self._config.console_logging:
             self.logger.addHandler(
-                ConsoleHandler(self._config, self._color_config).get_console_handler()
+                ConsoleHandler(self._config, self._color_config).get_handler()
             )
         if self._config.file_logging:
             self.logger.addHandler(
-                FileHandler(self._config, self._color_config).get_console_handler()
+                FileHandler(self._config, self._color_config).get_handler()
             )
 
     def dev_handler_setup(self):
@@ -124,13 +123,13 @@ class Log:
             self.logger.addHandler(
                 ConsoleHandler(
                     config=self._config, color_config=self._color_config
-                ).get_console_handler()
+                ).get_handler()
             )
         if self._config.file_logging:
             self.logger.addHandler(
                 FileHandler(
                     config=self._config, color_config=self._color_config
-                ).get_console_handler()
+                ).get_handler()
             )
 
     def test_handler_setup(self):
@@ -150,13 +149,13 @@ class Log:
             self.logger.addHandler(
                 ConsoleHandler(
                     config=self._config, color_config=self._color_config
-                ).get_console_handler()
+                ).get_handler()
             )
         if self._config.file_logging:
             self.logger.addHandler(
                 FileHandler(
                     config=self._config, color_config=self._color_config
-                ).get_console_handler()
+                ).get_handler()
             )
 
     @classmethod
@@ -164,3 +163,17 @@ class Log:
         """Return the names registered through ``Log`` instances."""
 
         return cls.active_loggers
+
+def get_logger(
+    name: str,
+    config: Config | None = None,
+    color_config: ColorConfig | None = None,
+    allow_duplicates: bool = False,
+) -> logging.Logger:
+    log = Log(
+        logger_name=name,
+        config=config or Config(),
+        color_config=color_config or ColorConfig(),
+        allow_duplicates=allow_duplicates,
+    )
+    return log.logger

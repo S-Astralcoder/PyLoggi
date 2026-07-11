@@ -37,7 +37,7 @@ class ConsoleHandler:
             )
         return console_handler
 
-    def get_console_handler(self) -> logging.Handler:
+    def get_handler(self) -> logging.Handler:
         """Return the configured logging handler."""
 
         return self.handler
@@ -51,7 +51,7 @@ class FileHandler(ConsoleHandler):
 
         super().__init__(config=config, color_config=color_config)
 
-    def _setup_console_handler(self) -> logging.FileHandler:
+    def _setup_handler(self) -> logging.FileHandler:
         """Create a file handler that writes plain text log records."""
 
         file_handler = logging.FileHandler(filename=self._config.log_file_path)

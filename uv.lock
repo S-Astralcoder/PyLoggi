@@ -127,7 +127,6 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "pydantic" },
-    { name = "pytest" },
     { name = "regex" },
 ]
 
@@ -141,7 +140,6 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "pydantic", specifier = ">=2.13.4" },
-    { name = "pytest", specifier = ">=9.1.1" },
     { name = "regex", specifier = ">=2026.6.28" },
 ]
 
