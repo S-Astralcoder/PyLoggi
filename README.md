@@ -87,6 +87,7 @@ and must use a supported file extension:
 
 - `.txt`
 - `.rtf`
+- '.log'
 
 File output is covered by the test suite. The file handler stores a real
 `logging.FileHandler`, so messages are written to the configured file when
@@ -300,7 +301,7 @@ Common feedback examples:
 - `logger_name='root' is not allowed because pyloggi would modify the Python root logger.`
 - `config must be an instance of pyloggi.config.Config.`
 - `color_config must be an instance of pyloggi.config.ColorConfig.`
-- `Unsupported log file extension '.log'. Use '.txt' or '.rtf'.`
+- `Unsupported log file extension '.pdf'. Use '.txt' or '.rtf'. or '.log'`
 - `Log file directory does not exist: logs`
 - `Invalid construction_mode. Use 'default', 'dev', or 'test'.`
 
