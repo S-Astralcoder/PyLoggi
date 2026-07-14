@@ -1,0 +1,38 @@
+name : check code
+
+on:
+  push:
+    branches : ["master"]
+  pull-request:
+    branches : ["master"]
+  
+jobs:
+  test:
+    name : check quality
+    runs-on : windows-latest
+
+    steps:
+      - name : into project
+        uses : action/checkout@v4
+
+      - name : install uv
+        uses : astral-sh/setup-uv@v5
+        with :
+          enable-cache : true
+
+      # 3. Pin your Python version using uv
+      - name: Set up Python
+        run: uv python install 3.12
+
+      # 4. Install dependencies using your uv.lock file
+      - name: Install dependencies
+        run: uv sync --locked
+
+      # 5. Run your test suite or linters
+      - name: Run tests
+        run: uv run pytest
+
+      - name: Run ruff check
+        runL uv tool run ruff check
+
+  
