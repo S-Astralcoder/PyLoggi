@@ -85,7 +85,7 @@ class Config(BaseModel):
             folder_path = (
                 log_file_path if log_file_path.is_dir() else log_file_path.parent
             )
-            if log_file_path.suffix not in (".txt", ".rtf"):
+            if log_file_path.suffix not in (".txt", ".rtf", ".log"):
                 raise InvalidFileType(
                     "Unsupported log file extension "
                     f"{log_file_path.suffix!r}. Use '.txt' or '.rtf'."
