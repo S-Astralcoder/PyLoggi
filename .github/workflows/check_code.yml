@@ -1,24 +1,24 @@
-name : check code
+name: check code
 
 on:
   push:
-    branches : ["master"]
+    branches: ["master"]
   pull-request:
-    branches : ["master"]
+    branches: ["master"]
   
 jobs:
   test:
-    name : check quality
-    runs-on : windows-latest
+    name: check quality
+    runs-on: windows-latest
 
     steps:
-      - name : into project
-        uses : action/checkout@v4
+      - name: into project
+        uses: action/checkout@v4
 
-      - name : install uv
-        uses : astral-sh/setup-uv@v5
-        with :
-          enable-cache : true
+      - name: install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
 
       # 3. Pin your Python version using uv
       - name: Set up Python
@@ -33,6 +33,6 @@ jobs:
         run: uv run pytest
 
       - name: Run ruff check
-        runL uv tool run ruff check
+        run: uv tool run ruff check
 
   
